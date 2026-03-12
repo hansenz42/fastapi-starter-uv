@@ -1,4 +1,3 @@
-from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
@@ -15,7 +14,7 @@ log = get_logger(__name__)
 
 
 def create_app() -> FastAPI:
-    """创建 FastAPI 应用实例"""
+    """Create FastAPI application instance"""
 
     app = FastAPI(
         title="Information Assistant API",
@@ -23,16 +22,16 @@ def create_app() -> FastAPI:
         version="1.0.0",
     )
 
-    # 配置 CORS
+    # Configure CORS
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],  # 在生产环境中应该设置具体的域名
+        allow_origins=["*"],  # In production, set specific allowed origins
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
     )
 
-    # 全局异常处理
+    # Global exception handlers
     @app.exception_handler(HTTPException)
     async def http_exception_handler(request: Request, exc: HTTPException):
         log.error("FASTAPI: HTTP error", exc_info=exc)
@@ -40,7 +39,7 @@ def create_app() -> FastAPI:
             status_code=exc.status_code,
             content={
                 "err_code": exc.status_code,
-                "err_msg": "HTTP 错误",
+                "err_msg": "HTTP error",
                 "data": exc.detail if config.debug else None,
             },
         )
@@ -54,7 +53,7 @@ def create_app() -> FastAPI:
             status_code=HTTP_422_UNPROCESSABLE_ENTITY,
             content={
                 "err_code": HTTP_422_UNPROCESSABLE_ENTITY,
-                "err_msg": "参数验证错误",
+                "err_msg": "Request validation error",
                 "data": exc.errors() if config.debug else None,
             },
         )
@@ -66,7 +65,7 @@ def create_app() -> FastAPI:
             status_code=HTTP_500_INTERNAL_SERVER_ERROR,
             content={
                 "err_code": HTTP_500_INTERNAL_SERVER_ERROR,
-                "err_msg": "内部服务器错误",
+                "err_msg": "Internal server error",
                 "data": None,
             },
         )

@@ -1,9 +1,9 @@
 from __future__ import annotations
 import uvicorn
 
-from src.common.env import config  # 从统一的环境配置获取变量
+from src.common.env import config  # Get variables from centralized environment config
 
-# 仅当 config.debug 为 True 时启用热重载
+# Enable hot reload only when config.debug is True
 DEBUG: bool = bool(config.debug)
 
 if __name__ == "__main__":

@@ -11,9 +11,9 @@ __all__ = ["get_logger"]
 
 
 class JsonFormatter(logging.Formatter):
-    """自定义 JSON 格式化器"""
+    """Custom JSON formatter"""
 
-    # LogRecord 的标准属性
+    # Standard LogRecord attributes
     STANDARD_ATTRS = {
         "name",
         "msg",
@@ -50,22 +50,22 @@ class JsonFormatter(logging.Formatter):
             "funcName": record.funcName,
         }
 
-        # 如果有异常信息，添加到日志中
+        # If exception info exists, add it to the log
         if record.exc_info:
             log_data["exception"] = self.formatException(record.exc_info)
 
-        # 添加额外的字段（通过 extra 参数传递的）
+        # Add extra fields (passed via the `extra` parameter)
         for attr in dir(record):
             if not attr.startswith("_") and attr not in self.STANDARD_ATTRS:
                 value = getattr(record, attr)
-                if not callable(value):  # 只添加非方法属性
+                if not callable(value):  # only add non-callable attributes
                     log_data[attr] = value
 
         return json.dumps(log_data, ensure_ascii=False)
 
 
 class DailyRotatingFileHandler(logging.FileHandler):
-    """按天轮转的日志处理器，当前日志始终为 log.json，备份文件名带日期"""
+    """Daily rotating file handler: current log is always `log.json`, backups include the date"""
 
     def __init__(self, log_file: Path, backup_count: int = 7, encoding: str = "utf-8"):
         self.log_file = log_file
@@ -75,8 +75,8 @@ class DailyRotatingFileHandler(logging.FileHandler):
         super().__init__(str(log_file), encoding=encoding)
 
     def emit(self, record: logging.LogRecord) -> None:
-        """发送日志记录，检查是否需要轮转"""
-        # 检查日期是否变化
+        """Emit a log record and check whether rotation is needed"""
+        # Check if the date has changed
         new_date = datetime.now().strftime("%Y-%m-%d")
         if new_date != self.current_date:
             self._rollover(new_date)
@@ -84,26 +84,26 @@ class DailyRotatingFileHandler(logging.FileHandler):
         super().emit(record)
 
     def _rollover(self, new_date: str) -> None:
-        """轮转日志文件：备份旧文件，创建新文件"""
+        """Rotate the log file: backup the old file and create a new one"""
         old_date = self.current_date
         self.current_date = new_date
 
-        # 关闭当前文件处理器
+        # Close the current file handler
         self.close()
 
-        # 备份旧日期的日志文件
+        # Backup the log file for the old date
         backup_file = self.log_file.parent / f"{self.log_file.name}.{old_date}"
         if self.log_file.exists():
             self.log_file.rename(backup_file)
 
-        # 清理超过 backup_count 天的备份文件
+        # Clean up backup files exceeding `backup_count` days
         self._cleanup_old_files()
 
-        # 打开新的日志文件
+        # Open a new log file
         self._open()
 
     def _cleanup_old_files(self) -> None:
-        """删除超过保留天数的旧日志文件"""
+        """Remove old log files that exceed retention days"""
         log_dir = self.log_file.parent
         pattern = re.compile(rf"^{self.log_file.name}\.\d{{4}}-\d{{2}}-\d{{2}}$")
 
@@ -111,10 +111,10 @@ class DailyRotatingFileHandler(logging.FileHandler):
             f for f in log_dir.glob(f"{self.log_file.name}.*") if pattern.match(f.name)
         ]
 
-        # 按文件名排序，文件名中包含日期
+        # Sort by filename (which includes the date)
         backup_files.sort(reverse=True)
 
-        # 删除超过 backup_count 的文件
+        # Delete files beyond the configured `backup_count`
         for old_file in backup_files[self.backup_count :]:
             try:
                 old_file.unlink()
@@ -123,26 +123,25 @@ class DailyRotatingFileHandler(logging.FileHandler):
 
 
 def get_logger(module_name: str, propagate: bool = False) -> logging.Logger:
-    """
-    设置日志配置
+    """Configure and return a logger
 
     Args:
-        module_name: 模块名称，用于日志标识
-        propagate: 是否传播日志到父级logger，默认为False
+        module_name: Name of the module for logger identification
+        propagate: Whether to propagate logs to parent logger (default: False)
 
     Returns:
-        logging.Logger: 配置好的日志对象
+        logging.Logger: Configured logger instance
     """
-    # 创建logger对象
+    # Create logger object
     logger = logging.getLogger(module_name)
     logger.setLevel(config.log_level)
     logger.propagate = propagate
 
-    # 如果logger已经有处理器，说明已经配置过，直接返回
+    # If the logger already has handlers, it's already configured — return it
     if logger.handlers:
         return logger
 
-    # 配置控制台输出
+    # Configure console output
     console_handler = logging.StreamHandler()
     console_handler.setLevel(config.log_level)
     console_formatter = logging.Formatter(
@@ -151,18 +150,18 @@ def get_logger(module_name: str, propagate: bool = False) -> logging.Logger:
     console_handler.setFormatter(console_formatter)
     logger.addHandler(console_handler)
 
-    # 如果配置了 LOG_DIR，则添加 JSON 格式的文件输出
+    # If LOG_DIR is configured, add JSON formatted file output
     if config.log_dir:
         log_dir = Path(config.log_dir)
         log_dir.mkdir(parents=True, exist_ok=True)
 
-        # 日志文件始终为 log.json，备份文件为 log.json.YYYY-MM-DD
+        # The log file is always `log.json`; backups will be `log.json.YYYY-MM-DD`
         log_file = log_dir / "log.json"
 
-        # 使用自定义的按天轮转处理器
-        # - 当前日志始终写入 log.json（便于 sls 采集）
-        # - 轮转时备份为 log.json.YYYY-MM-DD
-        # - 保留 7 天的备份文件
+        # Use the custom daily rotating handler
+        # - Current logs are always written to `log.json` (convenient for collectors)
+        # - Backups are named `log.json.YYYY-MM-DD`
+        # - Keep backups for 7 days
         file_handler = DailyRotatingFileHandler(log_file, backup_count=7)
         file_handler.setLevel(config.log_level)
         file_handler.setFormatter(JsonFormatter())

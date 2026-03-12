@@ -2,20 +2,21 @@ from pathlib import Path
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-# 获取项目根目录的绝对路径
+# Get absolute path of project root directory
 ROOT_DIR = Path(__file__).parent.parent.parent.resolve()
 
 __all__ = ["config"]
 
 
 class EnvConfig(BaseSettings):
-    # 仅保留 .env.example 中定义的基础配置项
-    debug: bool = Field(default=True, description="启用调试模式")
+    # Only keep basic config items defined in .env.example
+    debug: bool = Field(default=True, description="Enable debug mode")
     log_level: str = Field(
         default="DEBUG", pattern="^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$"
     )
     log_dir: str | None = Field(
-        default="", description="日志输出目录（JSON格式），如未指定则仅输出到控制台"
+        default="",
+        description="Log output directory (JSON format); if not specified, logs only to console",
     )
 
     model_config = SettingsConfigDict(
@@ -31,5 +32,5 @@ class EnvConfig(BaseSettings):
     )
 
 
-# 创建全局配置实例
+# Create global config instance
 config: EnvConfig = EnvConfig()

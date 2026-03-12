@@ -5,29 +5,30 @@ T = TypeVar("T", bound=BaseModel | None)
 
 
 class EmptyModel(BaseModel):
-    """空响应模型，用于不需要返回数据的接口"""
+    """Empty response model for endpoints that don't return data"""
 
     pass
 
 
-_EmptyModel = EmptyModel  # 保持向后兼容
+_EmptyModel = EmptyModel  # Keep for backward compatibility
 
 
 def _empty() -> BaseModel:
-    """返回空 BaseModel 实例，供 default_factory 使用。"""
+    """Return an empty BaseModel instance for use as a default_factory."""
     return EmptyModel()
 
 
-# 导出 EmptyModel 作为 EmptyResponse，以便在其他模块中使用
+# Export EmptyModel as EmptyResponse for use in other modules
 EmptyResponse = EmptyModel
 
 
 class ResponseDto(BaseModel, Generic[T]):
-    """响应数据传输对象"""
+    """Response Data Transfer Object"""
 
-    err_code: int = Field(description="错误码，0表示正常，其他表示错误")
-    err_msg: str = Field(description="错误消息")
+    err_code: int = Field(description="Error code: 0 means OK, others indicate errors")
+    err_msg: str = Field(description="Error message")
 
     data: T | None = Field(
-        default=None, description="数据，对应具体业务模型；默认为空对象"
+        default=None,
+        description="Data corresponding to business model; defaults to empty object",
     )

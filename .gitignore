@@ -1,4 +1,4 @@
-# 环境变量文件
+# env files
 .env
 .env.local
 .env.production
@@ -25,7 +25,7 @@ wheels/
 .installed.cfg
 *.egg
 
-# 虚拟环境
+# Virtual environments
 venv/
 env/
 ENV/
@@ -36,7 +36,7 @@ ENV/
 *.swp
 *.swo
 
-# macOS 系统文件
+# macOS system files
 .DS_Store
 .AppleDouble
 .LSOverride
@@ -52,13 +52,13 @@ Icon
 .AppleDB
 .AppleDesktop
 
-# 测试数据目录
+# Test data directories
 tests/test_data/
 Network Trash Folder
 Temporary Items
 .apdisk
 
-# Windows 系统文件
+# Windows system files
 Thumbs.db
 Thumbs.db:encryptable
 ehthumbs.db
@@ -73,7 +73,7 @@ $RECYCLE.BIN/
 *.msp
 *.lnk
 
-# 项目特定
+# Project-specific
 cache/
 *.log 
 .output/
