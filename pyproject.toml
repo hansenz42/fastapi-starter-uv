@@ -1,0 +1,36 @@
+[project]
+name = "fastapi-starter-py"
+version = "0.0.1"
+description = ""
+authors = [{ name = "Hansen", email = "hansenz42@outlook.com" }]
+requires-python = "~=3.13.0"
+readme = "README.md"
+dependencies = [
+    "requests==2.32.5",
+    "pydantic-settings==2.8.1",
+    "python-dotenv==1.0.1",
+    "markdown==3.5.2",
+    "fastapi==0.115.11",
+    "uvicorn==0.34.0",
+    "pytest-mock>=3.14.0,<4",
+    "numpy>=1.22.0",
+    "pytest-asyncio>=0.25.3,<0.26",
+    "greenlet>=3.1.1,<4",
+    "certifi>=2025.1.31,<2026",
+    "python-dateutil>=2.9.0.post0,<3",
+    "pytest-env>=1.1.5,<2",
+    "pydantic>=2.11.3",
+    "python-multipart>=0.0.20",
+    "setuptools>=80.9.0",
+    "wheel",
+    "pycryptodome>=3.21.0",
+    "pillow>=11.3.0",
+]
+
+[tool.uv]
+dev-dependencies = ["pytest"]
+
+# [[tool.uv.index]]
+# name = "ali"
+# url = "https://mirrors.aliyun.com/pypi/simple/"
+# default = true
